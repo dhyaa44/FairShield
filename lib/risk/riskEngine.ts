@@ -1,62 +1,41 @@
-export type RiskTier = "HIGH" | "MEDIUM" | "LOW"
-
-export interface AllocationConfig {
-  multiplier: number
-  vestingDays: number
-  claimDelayHours: number
+export interface RiskInput {
+  walletAgeDays: number;
+  txCount: number;
+  avgTxValue: number;
+  lastActivityDays: number;
 }
 
-export interface RiskProfile {
-  tier: RiskTier
-  config: AllocationConfig
+export interface RiskEvaluation {
+  score: number;
+  reasons: string[];
 }
 
-const RISK_CONFIG: Record<RiskTier, AllocationConfig> = {
-  HIGH: {
-    multiplier: 0.4,
-    vestingDays: 30,
-    claimDelayHours: 24,
-  },
-  MEDIUM: {
-    multiplier: 1,
-    vestingDays: 7,
-    claimDelayHours: 0,
-  },
-  LOW: {
-    multiplier: 1.4,
-    vestingDays: 0,
-    claimDelayHours: 0,
-  },
-}
+export function evaluateRisk(input: RiskInput): RiskEvaluation {
+  let score = 0;
+  const reasons: string[] = [];
 
-export function getRiskTier(score: number): RiskTier {
-  if (score < 300) return "HIGH"
-  if (score <= 700) return "MEDIUM"
-  return "LOW"
-}
+  if (input.walletAgeDays < 30) {
+    score += 25;
+    reasons.push("new_wallet");
+  }
 
-export function getRiskProfile(score: number): RiskProfile {
-  const tier = getRiskTier(score)
-  const config = RISK_CONFIG[tier]
+  if (input.txCount < 10) {
+    score += 20;
+    reasons.push("low_tx_count");
+  }
+
+  if (input.avgTxValue > 10000) {
+    score += 15;
+    reasons.push("high_avg_tx_value");
+  }
+
+  if (input.lastActivityDays > 14) {
+    score += 10;
+    reasons.push("inactive_wallet");
+  }
 
   return {
-    tier,
-    config,
-  }
-}
-
-export function simulateAllocation(
-  baseAllocation: number,
-  score: number
-) {
-  const { tier, config } = getRiskProfile(score)
-
-  const adjustedAllocation = baseAllocation * config.multiplier
-
-  return {
-    tier,
-    adjustedAllocation,
-    vestingDays: config.vestingDays,
-    claimDelayHours: config.claimDelayHours,
-  }
+    score: Math.min(score, 100),
+    reasons,
+  };
 }
