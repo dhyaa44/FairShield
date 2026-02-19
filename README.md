@@ -1,14 +1,5 @@
-Title
-FairShield — Reputation-based Sybil Risk Engine
+FairShield is a reputation-based sybil risk engine designed to protect token distributions and onchain grant programs from capital farming.
 
-What it does
-Short paragraph.
+By transforming FairScore into dynamic risk tiers, FairShield adjusts allocation weight, vesting schedules, and claim timing based on participant credibility.
 
-How FairScore is used
-Jelasin mapping score → risk → allocation
-
-Architecture (sementara)
-Frontend → API route → FairScore API → risk engine → UI
-
-Demo flow
-connect wallet → fetch score → compute risk → show allocation
+This approach enables projects to reward genuine contributors more efficiently while reducing sybil capture without relying on intrusive identity systems, FairShield turns onchain reputation into a programmable capital protection layer for fair and scalable distribution.
